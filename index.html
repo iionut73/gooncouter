@@ -1,588 +1,317 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Goon counter 💦</title>
-    <style>
-        :root {
-            --bg-color: #f2f2f7; /* iOS System Gray 6 */
-            --card-bg: #ffffff;
-            --text-primary: #000000;
-            --text-secondary: #8e8e93;
-            --accent: #007aff; /* iOS Blue */
-            --destructive: #ff3b30; /* iOS Red */
-            --lock-overlay: rgba(0, 0, 0, 0.75);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy 18th Bianca! 🎉</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-color: #000000;
-                --card-bg: #1c1c1e;
-                --text-primary: #ffffff;
-                --text-secondary: #98989f;
-            }
-        }
+  :root {
+    --rose: #f43f74;
+    --blush: #ffd6e5;
+    --gold: #f7c948;
+    --cream: #fffaf4;
+    --deep: #1a0a14;
+    --lavender: #c084fc;
+  }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-            -webkit-user-select: none; /* Disable text selection like an app */
-            user-select: none;
-        }
+  body {
+    background: var(--cream);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+    position: relative;
+  }
 
-        /* App Container */
-        #app {
-            width: 100%;
-            max-width: 400px;
-            padding: 20px;
-            text-align: center;
-            position: relative;
-        }
+  /* Stars/sparkle bg */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(244,63,116,0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(192,132,252,0.10) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(247,201,72,0.06) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
 
-        /* Blur Effect Class */
-        .blurred {
-            filter: blur(10px);
-            pointer-events: none;
-        }
+  /* Confetti canvas */
+  #confetti {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 999;
+  }
 
-        /* Typography */
-        h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; }
-        .count-display {
-            font-size: 6rem;
-            font-weight: 700;
-            font-variant-numeric: tabular-nums;
-            margin: 20px 0;
-            transition: transform 0.1s;
-        }
-        .count-display.pop { transform: scale(1.2); }
+  .container {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 2rem 1.5rem;
+    max-width: 680px;
+  }
 
-        /* Main Action Button (Add) */
-        .add-btn-container {
-            position: relative;
-            width: 100%;
-            height: 60px;
-            background-color: rgba(142, 142, 147, 0.3);
-            border-radius: 12px;
-            overflow: hidden;
-            margin-bottom: 16px;
-            cursor: pointer;
-            touch-action: none; /* Prevents scrolling while holding */
-        }
+  /* Age badge */
+  .badge {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--deep);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 0.45rem 1.2rem;
+    border-radius: 99px;
+    margin-bottom: 1.6rem;
+    opacity: 0;
+    animation: slideDown 0.7s 0.2s ease forwards;
+  }
 
-        /* Disabled visual state (still accepts hold override) */
-        .add-btn-container.disabled {
-            opacity: 0.45;
-        }
+  /* Main name */
+  .name {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(4.5rem, 14vw, 8rem);
+    font-weight: 700;
+    line-height: 0.95;
+    color: var(--deep);
+    opacity: 0;
+    animation: riseUp 0.9s 0.5s cubic-bezier(0.22,1,0.36,1) forwards;
+    position: relative;
+  }
 
-        .progress-bar {
-            position: absolute;
-            top: 0; left: 0; bottom: 0;
-            width: 0%;
-            background-color: var(--accent);
-            transition: none; /* width handled by JS for smooth per-frame updates */
-        }
+  .name span {
+    color: var(--rose);
+  }
 
-        .add-btn-text {
-            position: relative;
-            z-index: 2;
-            line-height: 60px;
-            font-weight: 600;
-            font-size: 1.1rem;
-            color: var(--text-primary);
-        }
-        /* White text if background is filled (active state) */
-        .add-btn-container.active .add-btn-text { color: white; }
+  /* Italic subtitle */
+  .hb {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(1.1rem, 4vw, 1.7rem);
+    color: #8a5070;
+    margin-top: 0.6rem;
+    opacity: 0;
+    animation: riseUp 0.9s 0.75s cubic-bezier(0.22,1,0.36,1) forwards;
+  }
 
-        /* Secondary Buttons Grid */
-        .grid-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
+  /* Decorative divider */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    justify-content: center;
+    margin: 2rem 0 1.8rem;
+    opacity: 0;
+    animation: fadeIn 0.8s 1.1s ease forwards;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--rose));
+  }
+  .divider::after { background: linear-gradient(to left, transparent, var(--rose)); }
+  .divider-dot { font-size: 1.4rem; }
 
-        button {
-            background: var(--card-bg);
-            border: none;
-            padding: 15px;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            color: var(--accent);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            transition: opacity 0.2s;
-        }
+  /* Message card */
+  .card {
+    background: white;
+    border-radius: 24px;
+    padding: 2.2rem 2.4rem;
+    box-shadow:
+      0 4px 24px rgba(244,63,116,0.10),
+      0 1px 3px rgba(0,0,0,0.06);
+    border: 1.5px solid rgba(244,63,116,0.13);
+    opacity: 0;
+    animation: riseUp 0.9s 1.3s cubic-bezier(0.22,1,0.36,1) forwards;
+  }
 
-        /* grid button base */
-        .grid-buttons button { position: relative; overflow: hidden; }
-        
-        button:active { opacity: 0.7; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
-        button.destructive { color: var(--destructive); }
+  .message {
+    font-size: clamp(1rem, 2.5vw, 1.15rem);
+    line-height: 1.85;
+    color: #4a2a3a;
+    font-weight: 300;
+  }
 
-        /* Locked Overlay */
-        #lock-screen {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80%;
-            background-color: var(--lock-overlay);
-            padding: 30px;
-            border-radius: 20px;
-            text-align: center;
-            z-index: 100;
-            color: white;
-            display: none; /* Hidden by default if unlocked */
-            flex-direction: column;
-            gap: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
+  .message strong {
+    font-weight: 600;
+    color: var(--rose);
+  }
 
-        /* Modals (Stats & Alerts) */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.4);
-            display: flex;
-            justify-content: center;
-            align-items: flex-end; /* Sheet style */
-            z-index: 200;
-            visibility: hidden;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-        .modal-overlay.show { visibility: visible; opacity: 1; }
+  /* Emojis row */
+  .emojis {
+    font-size: 2rem;
+    margin-top: 1.8rem;
+    letter-spacing: 0.3rem;
+    opacity: 0;
+    animation: fadeIn 0.8s 2s ease forwards;
+  }
 
-        .modal-content {
-            background: var(--card-bg);
-            width: 100%;
-            max-width: 400px;
-            border-radius: 20px 20px 0 0;
-            padding: 24px;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
-            transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .modal-overlay.show .modal-content { transform: translateY(0); }
+  /* Floating hearts */
+  .floats {
+    position: fixed;
+    bottom: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+  .heart {
+    position: absolute;
+    bottom: -60px;
+    font-size: 1.2rem;
+    animation: floatUp linear infinite;
+    opacity: 0.5;
+  }
 
-        .stat-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid rgba(142,142,147,0.2);
-        }
-        .stat-row:last-child { border-bottom: none; }
-        
-        /* Alert Modal specific */
-        .alert-box {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 14px;
-            width: 70%;
-            max-width: 300px;
-            text-align: center;
-            align-self: center; /* Center for alerts, not bottom sheet */
-            transform: scale(0.9);
-            transition: transform 0.2s;
-        }
-        .modal-overlay.show .alert-box { transform: scale(1); }
-        .alert-buttons { display: flex; gap: 10px; margin-top: 20px; }
-        .alert-buttons button { flex: 1; padding: 10px; }
-
-    </style>
+  /* Keyframes */
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes riseUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes floatUp {
+    0%   { transform: translateY(0) rotate(0deg); opacity: 0.5; }
+    100% { transform: translateY(-110vh) rotate(20deg); opacity: 0; }
+  }
+</style>
 </head>
 <body>
 
-    <div id="lock-screen">
-        <div style="font-size: 30px;">🔒</div>
-        <div style="font-size: 1.1rem; font-weight: 600;">Locked for your protection, babes</div>
-        <button onclick="authenticate()" style="background: #007aff; color: white;">Unlock 🔓</button>
-    </div>
+<canvas id="confetti"></canvas>
 
-    <div id="app">
-        <h1>Goon Counter 💦</h1>
-        <div id="count" class="count-display">0</div>
+<div class="floats" id="floats"></div>
 
-        <div id="add-btn" class="add-btn-container">
-            <div id="progress" class="progress-bar"></div>
-            <div id="add-text" class="add-btn-text">Add +1</div>
-        </div>
+<div class="container">
+  <div class="badge">✨ Turning 18 ✨</div>
+  <div class="name">Bianca</div>
+  <div class="hb">happy birthday, gorgeous</div>
 
-        <div class="grid-buttons">
-            <button id="minus-btn" class="destructive" onclick="showMinusAlert()">Minus -1</button>
-            <button onclick="toggleStats()">Stats 📊</button>
-        </div>
-    </div>
+  <div class="divider">
+    <span class="divider-dot">🌸</span>
+  </div>
 
-    <div id="stats-modal" class="modal-overlay" onclick="if(event.target === this) toggleStats()">
-        <div class="modal-content">
-            <h2 style="margin-top: 0;">Your Performance, Queen</h2>
-            <div class="stat-row"><span>🔥 Current Streak</span><span id="stat-streak">0 days</span></div>
-            <div class="stat-row"><span>💎 Longest Streak</span><span id="stat-longest">0 days</span></div>
-            <div class="stat-row"><span>🏆 Best Day</span><span id="stat-best-day">0</span></div>
-            <div class="stat-row"><span>📆 Best Month</span><span id="stat-best-month">0</span></div>
-            <div class="stat-row"><span>📝 Today's Work</span><span id="stat-today">0</span></div>
-            <button onclick="toggleStats()" style="width: 100%; margin-top: 20px; background: #e5e5ea; color: black;">Close</button>
-        </div>
-    </div>
+  <div class="card">
+    <p class="message">
+      Today you turning <strong>eighteen</strong>, and honestly world has no idea what bad bitch is about to hit it!🤩<br><br>
+      You're <strong>funny</strong>, you're <strong>smart</strong>, you're such an intreseting person with so many hobbies i'm suprised we haven't met sooner.<br><br>
+      This is your year to <strong>do more</strong>(alcohol ayyyy😝), spend money, get driving and all the other shit you may have had on your bucket list.
+      The best chapter is the one starting right now. (Men & Women all over u😍) 🎀<br><br>
+      <strong>Happy 18th, Bianca.</strong> I appreciate you so much! NEver stop being this <strong>cool</strong>!🥂
+    </p>
+  </div>
 
-    <div id="minus-alert" class="modal-overlay" style="align-items: center;">
-        <div class="alert-box">
-            <h3>Hoe, are you sure???</h3>
-            <div class="alert-buttons">
-                <button class="destructive" onclick="confirmMinus()">Yes 😒</button>
-                <button onclick="closeMinusAlert()" style="background: #e5e5ea; color: black;">Cancel 💅</button>
-            </div>
-        </div>
-    </div>
+  <div class="emojis">🎂 🎉 💖 🥳 ✨</div>
+</div>
 
 <script>
-    // --- State Management ---
-    const db = {
-        count: 0,
-        lastTapTimestamp: 0,
-        lastMinusTimestamp: 0,
-        emergencyUsed: false,
-        currentStreak: 0,
-        longestStreak: 0,
-        bestDayTaps: 0,
-        bestMonthTaps: 0,
-        currentMonthTaps: 0,
-        currentMonth: 0,
-        todayTaps: 0,
-        todayDate: 0,
-        lastStreakDate: 0,
-        isUnlocked: false
-    };
+// ── Confetti ──────────────────────────────────────────────
+const canvas = document.getElementById('confetti');
+const ctx = canvas.getContext('2d');
+let W, H, pieces = [];
 
-    // --- DOM Elements ---
-    const els = {
-        app: document.getElementById('app'),
-        lockScreen: document.getElementById('lock-screen'),
-        count: document.getElementById('count'),
-        addBtn: document.getElementById('add-btn'),
-        addText: document.getElementById('add-text'),
-        progress: document.getElementById('progress'),
-        minusBtn: document.getElementById('minus-btn'),
-        statsModal: document.getElementById('stats-modal'),
-        minusAlert: document.getElementById('minus-alert'),
-        // Stats elements
-        sStreak: document.getElementById('stat-streak'),
-        sLongest: document.getElementById('stat-longest'),
-        sBestDay: document.getElementById('stat-best-day'),
-        sBestMonth: document.getElementById('stat-best-month'),
-        sToday: document.getElementById('stat-today')
-    };
+const COLORS = ['#f43f74','#f7c948','#c084fc','#60d4f7','#ff9f7f','#a3e635','#ffd6e5'];
 
-    // --- Initialization ---
-    function init() {
-        loadData();
-        checkLockState();
-        updateUI();
-        setInterval(updateButtonState, 1000); // Check cooldowns every second
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+function randomPiece() {
+  return {
+    x: Math.random() * W,
+    y: Math.random() * -H,
+    r: Math.random() * 7 + 4,
+    d: Math.random() * 80 + 60,
+    color: COLORS[Math.floor(Math.random() * COLORS.length)],
+    tilt: Math.random() * 10 - 10,
+    tiltAngle: 0,
+    tiltSpeed: Math.random() * 0.1 + 0.05,
+    speed: Math.random() * 2.5 + 1.5,
+    shape: Math.random() > 0.5 ? 'rect' : 'circle',
+    opacity: Math.random() * 0.5 + 0.5
+  };
+}
+
+for (let i = 0; i < 160; i++) {
+  const p = randomPiece();
+  p.y = Math.random() * H; // start spread on screen
+  pieces.push(p);
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  pieces.forEach(p => {
+    ctx.save();
+    ctx.globalAlpha = p.opacity;
+    ctx.fillStyle = p.color;
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.tiltAngle);
+    if (p.shape === 'rect') {
+      ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r * 1.6);
+    } else {
+      ctx.beginPath();
+      ctx.arc(0, 0, p.r / 2, 0, Math.PI * 2);
+      ctx.fill();
     }
+    ctx.restore();
+  });
+}
 
-    // --- Data Persistence (Mimicking UserDefaults) ---
-    function loadData() {
-        const saved = localStorage.getItem('counterData');
-        if (saved) {
-            Object.assign(db, JSON.parse(saved));
-        }
-        // Always lock on reload unless specific override logic exists
-        db.isUnlocked = false; 
+function update() {
+  pieces.forEach(p => {
+    p.tiltAngle += p.tiltSpeed;
+    p.y += p.speed;
+    p.x += Math.sin(p.tiltAngle) * 1.2;
+    if (p.y > H + 20) {
+      p.y = -20;
+      p.x = Math.random() * W;
     }
+  });
+}
 
-    function saveData() {
-        localStorage.setItem('counterData', JSON.stringify(db));
-        // Placeholder for Firebase Sync
-        console.log("🔥 Syncing to Firebase (Stubbed):", db);
-    }
+function loop() {
+  draw();
+  update();
+  requestAnimationFrame(loop);
+}
+loop();
 
-    // --- Core Logic ---
-
-    // 1. Authentication
-    function checkLockState() {
-        if (db.isUnlocked) {
-            els.app.classList.remove('blurred');
-            els.lockScreen.style.display = 'none';
-        } else {
-            els.app.classList.add('blurred');
-            els.lockScreen.style.display = 'flex';
-        }
-    }
-
-    function authenticate() {
-        // Simulating FaceID delay
-        const btn = els.lockScreen.querySelector('button');
-        const originalText = btn.innerText;
-        btn.innerText = "Scanning... 👀";
-        
-        setTimeout(() => {
-            db.isUnlocked = true;
-            checkLockState();
-            btn.innerText = originalText;
-        }, 800);
-    }
-
-    // 2. Cooldown Logic
-    function canTap() {
-        const now = Date.now() / 1000;
-        return (now - db.lastTapTimestamp) >= 3600; // 3600 seconds = 1 hr
-    }
-
-    function canMinus() {
-        const now = Date.now() / 1000;
-        return (now - db.lastMinusTimestamp) >= 3600;
-    }
-
-    function updateButtonState() {
-        if (!db.isUnlocked) return;
-
-        // Add Button State
-        if (canTap()) {
-            els.addText.innerText = "Add +1";
-            els.addBtn.classList.remove('disabled');
-            // reset emergency allowance when cooldown finished
-            if (db.emergencyUsed) {
-                db.emergencyUsed = false;
-                saveData();
-            }
-        } else {
-            // Calculate remaining time for display logic if needed, 
-            // but the prompt asked for "Locked" text or Hold progress
-            if (rafId === null) {
-                els.addText.innerText = "Locked (1hr cooldown)";
-            }
-            els.addBtn.classList.add('disabled');
-        }
-
-        // Minus Button State
-        els.minusBtn.disabled = !canMinus();
-    }
-
-    // 3. Add Logic (Click & Hold)
-    let rafId = null;
-    let holdStart = 0;
-    const HOLD_DURATION = 15000; // ms to fully hold (15s)
-    let pendingTimeout = null; // 2s pre-hold delay
-
-    function handleAdd() {
-        db.count += 1;
-        db.lastTapTimestamp = Date.now() / 1000;
-        
-        // Pop animation
-        els.count.classList.add('pop');
-        setTimeout(() => els.count.classList.remove('pop'), 100);
-
-        updateStats();
-        updateUI();
-        saveData();
-    }
-
-    // Hold Listeners - RAF-based smooth progress
-    function startHold(e) {
-        // If tapping normally (cooldown passed), don't start hold flow
-        if (canTap()) return;
-        // prevent starting multiple pending/holds or additional emergency after one used
-        if (rafId) return;
-        if (pendingTimeout) return;
-        if (db.emergencyUsed) return;
-        if (e && e.cancelable) e.preventDefault();
-
-        // Start a 2s pre-hold delay. Only after it completes do we show the progress bar.
-        els.addText.innerText = 'Hold to override...';
-        pendingTimeout = setTimeout(() => {
-            pendingTimeout = null;
-            // begin RAF-driven progress
-            holdStart = performance.now();
-            els.addBtn.classList.add('active'); // Text turns white
-            els.progress.style.transition = 'none';
-
-            function step(now) {
-                const elapsed = now - holdStart;
-                const percentage = Math.min((elapsed / HOLD_DURATION) * 100, 100);
-                els.progress.style.width = percentage + '%';
-                els.addText.innerText = `Holding... ${Math.floor(percentage)}%`;
-
-                if (percentage >= 100) {
-                    els.progress.style.width = '100%';
-                    completeHoldOverride();
-                    return;
-                }
-                rafId = requestAnimationFrame(step);
-            }
-
-            rafId = requestAnimationFrame(step);
-        }, 2000);
-    }
-
-    function endHold() {
-        // If the cooldown has passed, a quick tap should add immediately
-        if (canTap()) {
-            handleAdd();
-            return;
-        }
-
-        // If user releases during the 2s pre-hold, cancel it
-        if (pendingTimeout) {
-            clearTimeout(pendingTimeout);
-            pendingTimeout = null;
-            // revert text to locked state
-            els.addText.innerText = 'Locked (1hr cooldown)';
-            return;
-        }
-
-        // If progress was running, cancel it (user lifted before completion)
-        if (rafId) {
-            resetHold();
-            return;
-        }
-    }
-
-    function completeHoldOverride() {
-        // Ensure we clear any running RAF and then perform the add
-        if (rafId) cancelAnimationFrame(rafId);
-        rafId = null;
-        // mark emergency used so only one override per cooldown
-        db.emergencyUsed = true;
-        saveData();
-        // Briefly keep the bar full, then trigger the add and reset
-        setTimeout(() => {
-            handleAdd();
-            if (navigator.vibrate) navigator.vibrate(200);
-            resetHold();
-        }, 80);
-    }
-
-    function resetHold() {
-        // Clear any pending pre-hold delay
-        if (pendingTimeout) {
-            clearTimeout(pendingTimeout);
-            pendingTimeout = null;
-        }
-        if (rafId) cancelAnimationFrame(rafId);
-        rafId = null;
-        els.addBtn.classList.remove('active');
-        // Animate the bar back to 0 for a smooth retreat
-        els.progress.style.transition = 'width 200ms ease';
-        els.progress.style.width = '0%';
-        // If we cancelled before progress started, restore locked text immediately
-        if (!canTap()) els.addText.innerText = 'Locked (1hr cooldown)';
-        // Update button state after the retract finishes
-        setTimeout(() => updateButtonState(), 220);
-    }
-
-    // Attach pointer-only Hold Events to Add Button to avoid duplicate events
-    els.addBtn.addEventListener('pointerdown', startHold);
-    els.addBtn.addEventListener('pointerup', endHold);
-    els.addBtn.addEventListener('pointercancel', resetHold);
-    els.addBtn.addEventListener('pointerleave', resetHold);
-
-    // Global fallbacks: ensure holds are cleared if touch/pointer ends outside the element
-    window.addEventListener('pointerup', () => { resetHold(); });
-    window.addEventListener('pointercancel', () => { resetHold(); });
-    window.addEventListener('touchend', () => { resetHold(); });
-    window.addEventListener('touchcancel', () => { resetHold(); });
-    // If the page is hidden (app switch), clear holds
-    document.addEventListener('visibilitychange', () => {
-        if (document.hidden) { resetHold(); }
-    });
-
-    // Minus button: no hold override allowed — only one subtraction per hour
-
-    // 4. Minus Logic
-    function showMinusAlert() {
-        els.minusAlert.classList.add('show');
-    }
-    
-    function closeMinusAlert() {
-        els.minusAlert.classList.remove('show');
-    }
-
-    function confirmMinus() {
-        db.count -= 1;
-        db.lastMinusTimestamp = Date.now() / 1000;
-        updateUI();
-        saveData();
-        closeMinusAlert();
-    }
-
-    // 5. Statistics Logic
-    function updateStats() {
-        const now = new Date();
-        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime() / 1000;
-        
-        // Daily Logic
-        if (db.todayDate !== startOfToday) {
-            if (db.todayTaps > db.bestDayTaps) db.bestDayTaps = db.todayTaps;
-            db.todayTaps = 0;
-            db.todayDate = startOfToday;
-        }
-        db.todayTaps += 1;
-
-        // Monthly Logic
-        const currentMonthIdx = now.getMonth();
-        if (db.currentMonth !== currentMonthIdx) {
-            if (db.currentMonthTaps > db.bestMonthTaps) db.bestMonthTaps = db.currentMonthTaps;
-            db.currentMonthTaps = 0;
-            db.currentMonth = currentMonthIdx;
-        }
-        db.currentMonthTaps += 1;
-
-        // Streak Logic
-        // Simple simplified version for JS: if last streak date was yesterday, increment.
-        // If today, do nothing. If older, reset.
-        const lastStreakDateObj = new Date(db.lastStreakDate * 1000);
-        const isToday = now.toDateString() === lastStreakDateObj.toDateString();
-        
-        const yesterday = new Date(now);
-        yesterday.setDate(yesterday.getDate() - 1);
-        const isYesterday = yesterday.toDateString() === lastStreakDateObj.toDateString();
-
-        if (db.lastStreakDate === 0) {
-            db.currentStreak = 1;
-        } else if (isYesterday) {
-            db.currentStreak += 1;
-        } else if (!isToday) {
-            db.currentStreak = 1;
-        }
-
-        if (db.currentStreak > db.longestStreak) db.longestStreak = db.currentStreak;
-        db.lastStreakDate = now.getTime() / 1000;
-    }
-
-    function toggleStats() {
-        const isShowing = els.statsModal.classList.contains('show');
-        if (isShowing) {
-            els.statsModal.classList.remove('show');
-        } else {
-            // Populate data before showing
-            els.sStreak.innerText = `${db.currentStreak} days`;
-            els.sLongest.innerText = `${db.longestStreak} days`;
-            els.sBestDay.innerText = db.bestDayTaps;
-            els.sBestMonth.innerText = db.bestMonthTaps;
-            els.sToday.innerText = `${db.todayTaps} taps`;
-            els.statsModal.classList.add('show');
-        }
-    }
-
-    // --- UI Render ---
-    function updateUI() {
-        els.count.innerText = db.count;
-        updateButtonState();
-    }
-
-    // Boot
-    init();
-
+// ── Floating hearts ───────────────────────────────────────
+const floats = document.getElementById('floats');
+const EMOJIS = ['💖','🌸','✨','💫','🎀','🦋','💕'];
+function spawnHeart() {
+  const el = document.createElement('div');
+  el.className = 'heart';
+  el.textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+  el.style.left = Math.random() * 100 + 'vw';
+  const dur = Math.random() * 8 + 7;
+  el.style.animationDuration = dur + 's';
+  el.style.animationDelay = Math.random() * 4 + 's';
+  el.style.fontSize = (Math.random() * 1.2 + 0.8) + 'rem';
+  floats.appendChild(el);
+  setTimeout(() => el.remove(), (dur + 4) * 1000);
+}
+for (let i = 0; i < 14; i++) spawnHeart();
+setInterval(spawnHeart, 1800);
 </script>
 </body>
 </html>
